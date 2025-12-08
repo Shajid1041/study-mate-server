@@ -31,6 +31,7 @@ async function run() {
         const db = client.db('studyMateDB');
         const usersCollection = db.collection('users')
         const profileCollection = db.collection('profiles');
+        const connections = db.collection('connections')
 
 
 
@@ -103,6 +104,36 @@ async function run() {
                 res.status(500).send({ error: "Failed to load partners" });
             }
         });
+
+
+
+
+        // ----------------------------
+        // connection
+        // ----------------------------
+        app.post('/connection' , async(req,res) => {
+            const connectionData = req.body;
+            const result = await connections.insertOne(connectionData)
+            res.send(result)
+        })
+
+        app.get('/connection', async (req, res) => {
+
+            const cursor = connections.find()
+            const result = await cursor.toArray()
+            res.send(result)
+        })
+        app.get('/connection', async (req, res) => {
+            const email = req.query.email;
+            const query = {}
+            if (email) {
+                query.email = email
+            }
+
+            const cursor = connections.find(query)
+            const result = await cursor.toArray()
+            res.send(result)
+        })
 
 
 
