@@ -28,11 +28,81 @@ async function run() {
     try {
         await client.connect();
 
-        const db = client.db('smart_db');
+        const db = client.db('studyMateDB');
         const usersCollection = db.collection('users')
+        const profileCollection = db.collection('profiles');
 
 
-        
+
+        // User APIs
+        app.post('/user', async (req, res) => {
+            const newUser = req.body;
+
+            const email = req.body.email;
+            const query = { email: email };
+            const isUserExist = await usersCollection.findOne(query);
+
+            if (isUserExist) {
+                res.send({ massage: 'This user already registered' })
+            } else {
+                const result = await usersCollection.insertOne(newUser);
+                res.send(result)
+            }
+
+        })
+        // -------------------------------------
+        // CREATE PARTNER PROFILE 
+        // -------------------------------------
+        app.post('/api/profile', async (req, res) => {
+            const profile = req.body;
+
+            // Check if profile already exists
+            const existing = await profileCollection.findOne({ email: profile.email });
+
+            if (existing) {
+                return res.status(400).send({
+                    error: "You already have a study partner profile."
+                });
+            }
+
+            try {
+                const result = await profileCollection.insertOne(profile);
+                res.status(201).send({
+                    success: true,
+                    message: "Profile created successfully!",
+                    result
+                });
+            } catch (error) {
+                console.error(error);
+                res.status(500).send({
+                    error: "Failed to create profile."
+                });
+            }
+        });
+        // ----------------------------------------------
+        // Get All Study Partners (For FindPartners.jsx)
+        // ----------------------------------------------
+        app.get('/partners', async (req, res) => {
+            try {
+                const partners = await profileCollection.find().toArray();
+                res.send(partners);
+            } catch (error) {
+                console.error(error);
+                res.status(500).send({ error: "Failed to load partners" });
+            }
+        });
+
+        app.get('/partners/:id', async (req, res) => {
+            try {
+                const id = req.params.id
+                const query = { _id: id }
+                const partners = await profileCollection.findOne(query);
+                res.send(partners);
+            } catch (error) {
+                console.error(error);
+                res.status(500).send({ error: "Failed to load partners" });
+            }
+        });
 
 
 
