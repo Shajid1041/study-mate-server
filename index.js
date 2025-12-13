@@ -93,10 +93,19 @@ async function run() {
             }
         });
 
+        app.get('/top-rated-partners' , async(req,res) => {
+            const cursor = await profileCollection.find().sort({ rating: -1 }).limit(4)
+            const result = await cursor.toArray()
+            res.send(result)
+
+        })
+
         app.get('/partners/:id', async (req, res) => {
             try {
                 const id = req.params.id
-                const query = { _id: id }
+                console.log('id:: ',id)
+                const query = { _id: new ObjectId(id) }
+                
                 const partners = await profileCollection.findOne(query);
                 res.send(partners);
             } catch (error) {
@@ -118,12 +127,6 @@ async function run() {
         })
 
         app.get('/connection', async (req, res) => {
-
-            const cursor = connections.find()
-            const result = await cursor.toArray()
-            res.send(result)
-        })
-        app.get('/connection', async (req, res) => {
             const email = req.query.email;
             const query = {}
             if (email) {
@@ -134,6 +137,31 @@ async function run() {
             const result = await cursor.toArray()
             res.send(result)
         })
+
+        // --------------------------------
+        // DELETE A CONNECTION
+        // --------------------------------
+        app.delete('/connection/:id', async (req, res) => {
+            try {
+                const id = req.params.id;
+                const query = { partner : id};
+
+                const result = await connections.deleteOne(query);
+
+                if (result.deletedCount === 0) {
+                    return res.status(404).send({ error: "Connection not found" });
+                }
+
+                res.send({
+                    success: true,
+                    message: "Connection deleted successfully!"
+                });
+
+            } catch (error) {
+                console.error(error);
+                res.status(500).send({ error: "Failed to delete connection" });
+            }
+        });
 
 
 
