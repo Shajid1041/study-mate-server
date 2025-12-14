@@ -113,6 +113,21 @@ async function run() {
                 res.status(500).send({ error: "Failed to load partners" });
             }
         });
+        app.put('/partners/:id', async (req, res) => {
+            const id = req.params.id;
+            const query = { _id: new ObjectId(id) }
+            const updatedDoc = {
+                $set: req.body
+            };
+
+            const result = await profileCollection.updateOne(
+                query ,
+                updatedDoc
+            );
+
+            res.send({ success: result.modifiedCount > 0 });
+        });
+
 
 
 
