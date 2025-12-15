@@ -103,7 +103,7 @@ async function run() {
         app.get('/partners/:id', async (req, res) => {
             try {
                 const id = req.params.id
-                console.log('id:: ',id)
+                // console.log('id:: ',id)
                 const query = { _id: new ObjectId(id) }
                 
                 const partners = await profileCollection.findOne(query);
@@ -127,6 +127,23 @@ async function run() {
 
             res.send({ success: result.modifiedCount > 0 });
         });
+        app.patch('/partners/:id', async (req, res) => {
+            const id = req.params.id;
+            const { patnerCount } = req.body;
+
+            const result = await profileCollection.updateOne(
+                { _id: new ObjectId(id) },
+                {
+                    $set: { patnerCount : patnerCount }
+                }
+            );
+
+            res.send({
+                modifiedCount: result.modifiedCount,
+                success: result.modifiedCount > 0
+            });
+        });
+
 
 
 
@@ -137,8 +154,26 @@ async function run() {
         // ----------------------------
         app.post('/connection' , async(req,res) => {
             const connectionData = req.body;
-            const result = await connections.insertOne(connectionData)
-            res.send(result)
+
+            // console.log( connectionData.email , connectionData.partner )
+
+            const existing = await connections.findOne({
+                $and: [
+                    { email: connectionData.email },
+                    { partner: connectionData.partner }
+                ]
+            });
+
+            // console.log(existing)
+            if(!existing){
+                const result = await connections.insertOne(connectionData)
+                res.send(result)
+            }else{
+                    res.send({
+                    error: "You already connected "
+                });              
+            }
+            
         })
 
         app.get('/connection', async (req, res) => {
