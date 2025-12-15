@@ -21,7 +21,7 @@ const client = new MongoClient(uri, {
 });
 
 app.get('/', (req, res) => {
-    res.send('StudyMate server is running....')
+    res.send('StudyMate server is running')
 })
 
 async function run() {
