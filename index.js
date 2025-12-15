@@ -215,8 +215,8 @@ async function run() {
 
 
 
-        await client.db('admin').command({ ping: 15 })
-        console.log("Pinged your deployment. You successfully connected to MongoDB!");
+        // await client.db('admin').command({ ping: 15 })
+        // console.log("Pinged your deployment. You successfully connected to MongoDB!");
     }
     finally {
 
@@ -227,5 +227,5 @@ run().catch(console.dir)
 
 
 app.listen(port, () => {
-    console.log(`Study-mate Server is Running on Port :: ${port}`)
+    // console.log(`Study-mate Server is Running on Port :: ${port}`)
 })
